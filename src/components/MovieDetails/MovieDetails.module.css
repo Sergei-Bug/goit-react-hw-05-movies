@@ -1,28 +1,32 @@
-.btnBack {
-  border-radius: 5px;
-  border: gray;
-}
-
-.linkBack {
-  text-decoration: none;
+.wrapper {
+  width: 120px;
+  font-size: 20px;
   color: black;
+  margin-bottom: 20px;
+  background-color: rgb(226, 217, 217);
+  cursor: pointer;
 }
 
-.filmCard {
+.title {
+  margin-bottom: 15px;
+}
+
+.article {
   display: flex;
   gap: 20px;
+  margin-bottom: 30px;
 }
 
-.filmPoster {
-  width: 300px;
+.text {
+  font-size: 19px;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+.item {
+  font-size: 19px;
+  font-weight: 500;
 }
 
-.filmInfo {
-  display: flex;
-  flex-direction: column;
-}
-
-.filmSubtitle {
-  font-size: 20px;
-  font-weight: 700;
+.item:first-child {
+  margin-bottom: 10px;
 }

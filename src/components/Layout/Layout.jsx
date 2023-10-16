@@ -1,30 +1,29 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import styled from 'styled-components';
-import css from './Layout.module.css';
+import { Outlet } from 'react-router-dom';
+import { Suspense } from 'react';
+import { NavList, StyledLink, Header } from './Layout.styled';
 
-const StyledLink = styled(NavLink)`
-  color: black;
-  text-decoration: none;
-
-  &.active {
-    color: red;
-  }
-`;
-
-export default function Layout() {
+const Layout = () => {
   return (
     <>
-      <header>
-        <nav className={css.navField}>
-          <StyledLink to="/" end>
-            Home
-          </StyledLink>
-          <StyledLink to="/movies">Movies</StyledLink>
+      <Header>
+        <nav>
+          <NavList>
+            <li>
+              <StyledLink to="/">Home</StyledLink>
+            </li>
+            <li>
+              <StyledLink to="/movies">Movies</StyledLink>
+            </li>
+          </NavList>
         </nav>
-      </header>
+      </Header>
       <main>
-        <Outlet />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Outlet />
+        </Suspense>
       </main>
     </>
   );
-}
+};
+
+export default Layout;

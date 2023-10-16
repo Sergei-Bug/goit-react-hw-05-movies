@@ -1,64 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { resultMovieDetails } from '../../services/fetch';
-import css from './MovieDetails.module.css';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { Link, useParams, Outlet, useLocation } from 'react-router-dom';
+import { fetchMovies } from 'API/themoviedbApi';
+import { BiArrowBack } from 'react-icons/bi';
+import {
+  StyledLink,
+  Wrapper,
+  Title,
+  Title2,
+  Text,
+  Item,
+  Article,
+} from './MovieDetails.styled';
 
-export default function MovieDetails() {
-  const [movieDetails, setMovieDetails] = useState({});
+const MovieDetails = () => {
   const { movieId } = useParams();
+  const location = useLocation();
+  const backLinkLocationRef = useRef(location.state?.from ?? '/');
+
+  const url = 'https://image.tmdb.org/t/p/w500';
+  const [movie, setMovie] = useState({});
 
   useEffect(() => {
-    resultMovieDetails(movieId)
-      .then(data => setMovieDetails(data))
-      .catch(error => console.error('Error while requesting data:', error));
+    const params = `movie/${movieId}`;
+    async function featch() {
+      try {
+        const { data } = await fetchMovies(params);
+        setMovie(data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    featch();
   }, [movieId]);
 
-  const {
-    id,
-    title,
-    name,
-    genres,
-    vote_average,
-    poster_path,
-    overview,
-    release_date,
-  } = movieDetails;
-
-  const releaseYear = release_date ? release_date.split('-')[0] : '';
+  const getYearMovie = date => {
+    const dateMovie = new Date(date);
+    const year = dateMovie.getFullYear();
+    return year;
+  };
 
   return (
-    <>
-      <button className={css.btnBack}>
-        <Link to="/" className={css.linkBack}>
-          Go back
-        </Link>
-      </button>
-
-      <div key={id} className={css.filmCard}>
+    <div>
+      <Wrapper>
+        <BiArrowBack />
+        <StyledLink to={backLinkLocationRef.current}>go back</StyledLink>
+      </Wrapper>
+      <Article>
         <img
-          className={css.filmPoster}
-          src={`https://image.tmdb.org/t/p/w500${poster_path}`}
-          alt={title || name}
+          src={movie.poster_path ? url + movie.poster_path : ''}
+          alt={movie.title}
+          width="350"
+          height="450"
         />
-        <div className={css.filmInfo}>
-          <h1>
-            {title || name} ({releaseYear})
-          </h1>
-          <p>User Score: {(Number(vote_average) * 10).toFixed(2)}%</p>
-          <p className={css.filmSubtitle}>Overview</p>
-          <p>{overview}</p>
-          <p className={css.filmSubtitle}>Genres</p>
-          {genres && genres.length > 0 ? (
-            <p>
-              {genres.map(genre => (
-                <span key={genre.id}>{genre.name} </span>
-              ))}
-            </p>
-          ) : (
-            <p>No genres available</p>
-          )}
+        <div>
+          <Title>
+            {movie.title}({getYearMovie(movie.release_date)})
+          </Title>
+          <Text>User Score: {(movie.vote_average * 10).toFixed()}%</Text>
+          <Title2>Overview</Title2>
+          <Text>{movie.overview}</Text>
+          <Title2>Genres</Title2>
+          <Text>
+            {movie.genres
+              ? movie.genres.map(genre => genre.name).join(' ')
+              : ''}
+          </Text>
         </div>
-      </div>
-    </>
+      </Article>
+      <section>
+        <h3>Additional information</h3>
+        <ul>
+          <Item>
+            <Link to="cast">Cast</Link>
+          </Item>
+          <Item>
+            <Link to="reviews">Reviews</Link>
+          </Item>
+        </ul>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Outlet />
+        </Suspense>
+      </section>
+    </div>
   );
-}
+};
+
+export default MovieDetails;

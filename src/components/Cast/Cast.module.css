@@ -1,11 +1,18 @@
-.castImg {
-  width: 100px;
-}
-
-.castBox {
-  padding-left: 20px;
-}
-
-.castList {
+.list {
   list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item:not(:last-child) {
+  margin-bottom: 30px;
+}
+
+.img {
+  margin-bottom: 10px;
+  width: 150px;
+}
+
+.name {
+  margin-bottom: 10px;
 }

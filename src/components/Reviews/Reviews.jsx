@@ -1,32 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { fetchMovies } from 'API/themoviedbApi';
 import { useParams } from 'react-router-dom';
-import { resultRev } from '../../services/fetch';
 import css from './Reviews.module.css';
 
-export default function Reviews() {
-  const [rev, setRev] = useState([]);
+const Reviews = () => {
   const { movieId } = useParams();
-
+  const [reviews, setReviews] = useState([]);
   useEffect(() => {
-    resultRev(movieId)
-      .then(data => setRev(data.results))
-      .catch(error => console.error('Error while requesting data:', error));
+    const params = `movie/${movieId}/reviews`;
+    async function featch() {
+      try {
+        const { data } = await fetchMovies(params);
+        setReviews(data.results);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    featch();
   }, [movieId]);
-
   return (
-    <div className={css.reviewsBox}>
-      {rev && rev.length > 0 ? (
-        <p>
-          {rev.map(item => (
-            <li key={item.id} className={css.reviewsList}>
-              <p className={css.reviewsAuthor}>Author: {item.author}</p>
-              <p> {item.content}</p>
+    <section>
+      {reviews.length === 0 && <p>We don`t have any reviews for this movie</p>}
+      <ul>
+        {reviews.map(review => {
+          return (
+            <li key={review.id} className={css.item}>
+              <h2>Author: {review.author}</h2>
+              <p>{review.content}</p>
             </li>
-          ))}
-        </p>
-      ) : (
-        <p>We don`t have any reviews for this movie.</p>
-      )}
-    </div>
+          );
+        })}
+      </ul>
+    </section>
   );
-}
+};
+
+export default Reviews;

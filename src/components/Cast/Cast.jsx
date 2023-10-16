@@ -1,37 +1,46 @@
-import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { resultCast } from '../../services/fetch';
+import { useState, useEffect } from 'react';
+import { fetchMovies } from 'API/themoviedbApi';
 import css from './Cast.module.css';
 
-export default function Cast() {
-  const [cast, setCast] = useState([]);
+const Cast = () => {
   const { movieId } = useParams();
 
+  const url = 'https://image.tmdb.org/t/p/w500';
+  const [cast, setCast] = useState([]);
   useEffect(() => {
-    resultCast(movieId)
-      .then(data => setCast(data.cast))
-      .catch(error => console.error('Error while requesting data:', error));
+    const params = `movie/${movieId}/credits`;
+    async function featch() {
+      try {
+        const { data } = await fetchMovies(params);
+        setCast(data.cast);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    featch();
   }, [movieId]);
-
   return (
-    <div className={css.castBox}>
-      {cast && cast.length > 0 ? (
-        <p>
-          {cast.map(item => (
-            <li key={item.id} className={css.castList}>
+    <section>
+      {cast.length === 0 && <p>We don`t have any cast for this movie</p>}
+      <ul className={css.list}>
+        {cast.map(item => {
+          return (
+            <li key={item.id} className={css.item}>
               <img
-                className={css.castImg}
-                src={`https://image.tmdb.org/t/p/w500/${item.profile_path}`}
+                className={css.img}
+                src={item.profile_path ? `${url}${item.profile_path}` : ''}
                 alt={item.name}
+                width="150"
               />
-              <p>{item.name}</p>
+              <h3 className={css.name}>{item.name}</h3>
               <p>Character: {item.character}</p>
             </li>
-          ))}
-        </p>
-      ) : (
-        <p>No cast available</p>
-      )}
-    </div>
+          );
+        })}
+      </ul>
+    </section>
   );
-}
+};
+
+export default Cast;
